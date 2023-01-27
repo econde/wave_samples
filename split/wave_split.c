@@ -31,25 +31,31 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
-	int channel = atoi(argv[2]) - 1;
-
 	Wave *wave = wave_load(argv[1]);
 	if (wave == NULL) {
 		fprintf(stderr, "Error loading file \"%s\"\n", argv[1]);
 		return -1;
 	}
-	Wave *out = wave_create(wave_get_bits_per_sample(wave) , 1);
+
+	int channel = atoi(argv[2]);
+	if (channel < 1 || channel > wave_get_number_of_channels(wave))  {
+		fprintf(stderr, "Wrong channel number: %d. ", channel);
+		fprintf(stderr, "Must be between 1 and %d.\n", wave_get_number_of_channels(wave));
+		return -1;
+	}
+
+	Wave *out = wave_create(wave_get_bits_per_sample(wave), 1);
 
 	size_t bytes_per_sample = wave_get_bits_per_sample(wave) / CHAR_BIT;
 	#define BLOCK_SAMPLES	1000
 	char buffer[bytes_per_sample * BLOCK_SAMPLES];
 
 	size_t frame_index = 0;
-	size_t read_samples = wave_get_samples_by_channel(wave, channel, frame_index, buffer, BLOCK_SAMPLES);
+	size_t read_samples = wave_get_samples_by_channel(wave, channel - 1, frame_index, buffer, BLOCK_SAMPLES);
 	while (read_samples > 0) {
 		frame_index += read_samples;
 		wave_append_samples(out, buffer, read_samples);
-		read_samples = wave_get_samples_by_channel(wave, channel, frame_index, buffer, BLOCK_SAMPLES);
+		read_samples = wave_get_samples_by_channel(wave, channel - 1, frame_index, buffer, BLOCK_SAMPLES);
 	}
 	wave_set_sample_rate(out, wave_get_sample_rate(wave));
 	wave_format_update(out);
