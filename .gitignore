@@ -1,0 +1,12 @@
+wavelib*
+.vscode
+*.o
+*.i
+*.s
+wave_dump
+wave_join
+wave_play
+wave_record
+wave_split
+samples
+*.wav
