@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 	Wave *out = wave_create(16, channels);
 	wave_set_sample_rate(out, sample_rate);
 
-	if (strcmp(option_format, "S16_LE") == 0) {
+	if (option_format == NULL || strcmp(option_format, "S16_LE") == 0) {
 		unsigned bytes_per_sample = 2;
 		FILE *fd[channels];
 		for (int i = 0; i < channels; ++i) {
