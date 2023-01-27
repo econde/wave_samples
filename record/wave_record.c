@@ -35,8 +35,8 @@ static int sound_id;
 
 static Wave *wave;
 
-static int capture() {
-	wave = wave_create(16, 1);
+static int capture(void *channels) {
+	wave = wave_create(16, (int) (long)channels);
 	if (wave == NULL) {
 		fprintf(stderr, "Out of memory\n");
 		exit(EXIT_FAILURE);
@@ -118,10 +118,12 @@ void delete() {
 
 static thrd_t thread_capture_id;
 
-void start_capture() {
+void start_capture(char *argument) {
 	capture_run = 1;
-
-	int result = thrd_create(&thread_capture_id, capture, NULL);
+	int channels = atoi(argument);
+	if (channels < 1 || channels > 8)
+		channels = 1;
+	int result = thrd_create(&thread_capture_id, capture, (void *)(long)channels);
 	if (result != thrd_success) {
 		fprintf(stderr, "create capture error");
 		exit(-1);
@@ -155,7 +157,7 @@ int main(int argc, char *argv[]) {
 			continue;
 		char *argument = strtok(NULL, " \t\n");
 		if (strcmp (command, "start") == 0)
-			start_capture();
+			start_capture(argument);
 		if (strcmp (command, "stop") == 0)
 			stop_capture();
 		if (strcmp (command, "save") == 0)
